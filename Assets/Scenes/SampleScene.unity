@@ -2982,7 +2982,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2ecec87390bcc74ca55ab40a863e7a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _keysUp: 770000001101000011010000
+  _keysUp: 7700000011010000
   _keysDown: 7300000012010000
   _keysRight: 6400000013010000
   _keysLeft: 6100000014010000

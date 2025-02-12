@@ -13,6 +13,7 @@ namespace _Sources.Presenter
         private InputReader _inputReader;
         private bool _isInit;
 
+        
         private void Update()
         {
             if (_isInit == false)
