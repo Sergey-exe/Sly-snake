@@ -1,68 +1,80 @@
 using System;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class PlayerMover : MonoBehaviour
+namespace _Sources.Model
 {
-    private bool _hasWall;
-    private Coroutine _coroutine;
-
-    public void TryMove(Vector2 direction, float rayLength, float speed)
+    public class PlayerMover : MonoBehaviour
     {
-        if (_coroutine != null)
-            return;
+        private Coroutine _coroutine;
+        private LayerMask _wallLayer;
+        private bool _isInit;
 
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction * rayLength);
-
-        if(hit.collider == null)
-            return;
-
-        _coroutine = StartCoroutine(Move(GetMovePoint(hit.transform, direction), speed));
-    }
-
-    private Vector2 GetMovePoint(Transform hitTransform, Vector2 reyDirection)
-    {
-        float xPosition;
-        float yPosition;
-        float distance;
-        float radiusDelimiter = 2;
-
-        if (reyDirection == Vector2.up || reyDirection == Vector2.down)
+        public void Init(LayerMask wallLayerMask)
         {
-            distance = (hitTransform.localScale.y + transform.localScale.y) / radiusDelimiter;
-            yPosition = hitTransform.position.y - distance * reyDirection.y;
-            xPosition = transform.position.x;
-        }
-        else if (reyDirection == Vector2.right || reyDirection == Vector2.left)
-        {
-            distance = (hitTransform.localScale.x + transform.localScale.x) / radiusDelimiter;
-            xPosition = hitTransform.position.x - distance * reyDirection.x;
-            yPosition = transform.position.y;
-        }
-        else
-        {
-            throw new ArgumentException($"Íå âåðíûé âåêòîð {nameof(reyDirection)}");
+            _wallLayer = wallLayerMask;
+            _isInit = true;
         }
 
-        Vector2 point = new Vector2(xPosition, yPosition);
-
-        return point;
-    }
-
-    private IEnumerator Move(Vector2 direction, float speed)
-    {
-        float epsilon = 0.001f;
-
-        while (Vector2.Distance(transform.position, direction) >= epsilon)
+        public void TryMove(Vector2 direction, float rayLength, float speed)
         {
-            transform.position = Vector2.MoveTowards(transform.position, direction, speed * Time.deltaTime);
+            if (_isInit == false)
+                return;
+        
+            if (_coroutine != null)
+                return;
+
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction * rayLength, rayLength, _wallLayer);
+
+            if(hit.collider == null)
+                return;
+
+            _coroutine = StartCoroutine(Move(GetMovePoint(hit.transform, direction), speed));
+        }
+
+        private Vector2 GetMovePoint(Transform hitTransform, Vector2 reyDirection)
+        {
+            float xPosition;
+            float yPosition;
+            float distance;
+            float radiusDelimiter = 2;
+
+            if (reyDirection == Vector2.up || reyDirection == Vector2.down)
+            {
+                distance = (hitTransform.localScale.y + transform.localScale.y) / radiusDelimiter;
+                yPosition = hitTransform.position.y - distance * reyDirection.y;
+                xPosition = transform.position.x;
+            }
+            else if (reyDirection == Vector2.right || reyDirection == Vector2.left)
+            {
+                distance = (hitTransform.localScale.x + transform.localScale.x) / radiusDelimiter;
+                xPosition = hitTransform.position.x - distance * reyDirection.x;
+                yPosition = transform.position.y;
+            }
+            else
+            {
+                throw new ArgumentException($"ÐÐµÐ²ÐµÑ€Ð½Ñ‹Ð¹ Ð²ÐµÐºÑ‚Ð¾Ñ€ {nameof(reyDirection)}");
+            }
+
+            Vector2 point = new Vector2(xPosition, yPosition);
+
+            return point;
+        }
+
+        private IEnumerator Move(Vector2 direction, float speed)
+        {
+            float epsilon = 0.001f;
+
+            while (Vector2.Distance(transform.position, direction) >= epsilon)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, direction, speed * Time.deltaTime);
+
+                yield return null;
+            }
+
+            _coroutine = null;
 
             yield return null;
         }
-
-        _coroutine = null;
-
-        yield return null;
     }
 }
