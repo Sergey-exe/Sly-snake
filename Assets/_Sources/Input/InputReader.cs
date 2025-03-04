@@ -1,4 +1,6 @@
 using System.Linq;
+using _Sources.Model;
+using _Sources.Presenter;
 using UnityEngine;
 
 namespace _Sources.Input
@@ -9,6 +11,31 @@ namespace _Sources.Input
         [SerializeField] private KeyCode[] _keysDown;
         [SerializeField] private KeyCode[] _keysRight;
         [SerializeField] private KeyCode[] _keysLeft;
+
+        private MapPresenter _mapPresenter;
+        private bool _isInit;
+
+        private void Update()
+        {
+            if(_isInit == false)
+                return;
+            
+            if(DownButtonUp())
+                _mapPresenter.TryPlayerMove(new MapVector2(-1, 0));
+            else if(DownButtonDown())
+                _mapPresenter.TryPlayerMove(new MapVector2(1, 0));
+            else if(DownButtonRight())
+                _mapPresenter.TryPlayerMove(new MapVector2(0, 1));
+            else if(DownButtonLeft())
+                _mapPresenter.TryPlayerMove(new MapVector2(0, -1));
+        }
+
+        public void Init(MapPresenter mapPresenter)
+        {
+            _mapPresenter = mapPresenter ?? throw new System.ArgumentNullException(nameof(mapPresenter));
+            
+            _isInit = true;
+        }
 
         public bool DownButtonUp()
         {
