@@ -14,20 +14,31 @@ namespace _Sources.Input
 
         private MapPresenter _mapPresenter;
         private bool _isInit;
+        private bool _isActive;
 
         private void Update()
+        {
+            if(_isActive == false)
+                return;
+
+            int step = 1;
+            
+            if(DownButtonUp())
+                _mapPresenter.TryPlayerMove(new PositionInMap(-step, 0));
+            else if(DownButtonDown())
+                _mapPresenter.TryPlayerMove(new PositionInMap(step, 0));
+            else if(DownButtonRight())
+                _mapPresenter.TryPlayerMove(new PositionInMap(0, step));
+            else if(DownButtonLeft())
+                _mapPresenter.TryPlayerMove(new PositionInMap(0, -step));
+        }
+
+        public void Activate()
         {
             if(_isInit == false)
                 return;
             
-            if(DownButtonUp())
-                _mapPresenter.TryPlayerMove(new MapVector2(-1, 0));
-            else if(DownButtonDown())
-                _mapPresenter.TryPlayerMove(new MapVector2(1, 0));
-            else if(DownButtonRight())
-                _mapPresenter.TryPlayerMove(new MapVector2(0, 1));
-            else if(DownButtonLeft())
-                _mapPresenter.TryPlayerMove(new MapVector2(0, -1));
+            _isActive = true;
         }
 
         public void Init(MapPresenter mapPresenter)

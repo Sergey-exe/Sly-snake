@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using _Sources.View;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-public class PlayerMoveAnimator : MonoBehaviour
+public class PlayerMover : MonoBehaviour
 { 
     [SerializeField] private float _speed;
     [SerializeField] private Player _playerPrfab;
@@ -13,8 +13,19 @@ public class PlayerMoveAnimator : MonoBehaviour
     private Coroutine _moveCoroutine;
     private List<MapElement> _waypoints;
     private bool _isInit;
+    private bool _isActive;
     
-    public event Action<MapElement> Finished;
+    public event Action<MapElement> InMapElement;
+    
+    public event Action Finished;
+    
+    public void Activate()
+    {
+        if(_isInit == false)
+            return;
+            
+        _isActive = true;
+    }
 
     public void Init(Transform playerTransform)
     {
@@ -24,6 +35,11 @@ public class PlayerMoveAnimator : MonoBehaviour
         _isInit = true;
     }
 
+    public void SetPosition(Transform playerTransform)
+    {
+        _playerTransform.position = playerTransform.position;
+    }
+
     public void SetMovementPosition(List<MapElement> waypoints)
     {
         _waypoints = waypoints ?? throw new ArgumentNullException(nameof(waypoints));
@@ -31,7 +47,7 @@ public class PlayerMoveAnimator : MonoBehaviour
     
     public void StartMove()
     {
-        if (_isInit == false)
+        if (_isActive == false)
             return;
         
         if(_moveCoroutine != null)
@@ -41,6 +57,12 @@ public class PlayerMoveAnimator : MonoBehaviour
             return;
         
         _moveCoroutine = StartCoroutine(Move());
+    }
+
+    public void StopMove()
+    {
+        StopCoroutine(_moveCoroutine);
+        _moveCoroutine = null;
     }
     
     private IEnumerator Move()
@@ -53,7 +75,8 @@ public class PlayerMoveAnimator : MonoBehaviour
             if (_waypoints == null || _waypoints.Count == 0)
             {
                 _moveCoroutine = null;
-                yield break;
+                atOnePoint = true;
+                break;
             }
             
             if (Vector2.Distance(_playerTransform.position, _waypoints[0].transform.position) >= epsilon)
@@ -62,11 +85,14 @@ public class PlayerMoveAnimator : MonoBehaviour
             }
             else
             {
-                Finished?.Invoke(_waypoints[0]);
+                InMapElement?.Invoke(_waypoints[0]);
                 _waypoints.RemoveAt(0);
             }
 
             yield return null;
         }
+        
+        Finished?.Invoke();
+        yield return null;
     }
 }

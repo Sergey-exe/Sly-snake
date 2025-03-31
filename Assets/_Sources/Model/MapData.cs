@@ -1,34 +1,48 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace _Sources.Model
 {
     public class MapData
     {
-        private MapVector2 _playerPosition;
+        private PositionInMap _playerPosition;
+        private ButtonsData _buttonsData;
+        private TrapData _trapData;
+        
+        private int[,] _startMap;
+        private int[,] _map;
         
         private enum _mapElements
         {
+            Trap = -4,
+            ThreeButton = -3,
+            TwoButton = -2,
+            OneButton = -1,
             SpaceToFill = 0,
             Wall = 1,
             Player = 2,
             TailPlayer = 3,
         };
         
-        private int[,] _map;
-        
-        public int GetPlayerIndex => (int)_mapElements.Player;
-        
         public MapData(int[,] map)
         {
-            _map = map ?? throw new ArgumentNullException(nameof(map));
+            if(map == null)
+                throw new ArgumentNullException(nameof(map));
+            
+            _trapData = new TrapData();
+            _buttonsData = new ButtonsData();
+            _startMap = (int[,])map.Clone();
+            _map = (int[,])map.Clone();
             ShowPlayer();
+            AddButtons();
+            AddTraps();
         }
+        
+        public int GetPlayerIndex => (int)_mapElements.Player;
 
-        public List<MapVector2> TrySetNewPlayerPosition(MapVector2 derection)
+        public List<PositionInMap> TrySetNewPlayerPosition(PositionInMap derection, out bool? hasFreeSpace, out bool areVictoryConditionsMet)
         {
-            List<MapVector2> сhangeableElementsPositions = new List<MapVector2>();
+            List<PositionInMap> сhangeableElementsPositions = new List<PositionInMap>();
             
             int newX = _playerPosition.X;
             int newY = _playerPosition.Y;
@@ -38,7 +52,7 @@ namespace _Sources.Model
                 if (TryChangePosition(i, _playerPosition.Y, ref newX, ref newY))
                     break;
                 
-                сhangeableElementsPositions.Add(new MapVector2(newX, newY));
+                сhangeableElementsPositions.Add(new PositionInMap(newX, newY));
             }
             
             for (int i = _playerPosition.Y; i < _map.GetLength(1); i += derection.Y)
@@ -46,32 +60,92 @@ namespace _Sources.Model
                 if (TryChangePosition(_playerPosition.X, i, ref newX, ref newY))
                     break;
                 
-                сhangeableElementsPositions.Add(new MapVector2(newX, newY));
+                сhangeableElementsPositions.Add(new PositionInMap(newX, newY));
             }
+
+            hasFreeSpace = TryShowFreeSpace();
+            areVictoryConditionsMet = AreVictoryConditionsMet();
             
             return сhangeableElementsPositions;
+        }
+        
+        public int[,] GetMap()
+        {
+            return _map;
+        }
+
+        public void Revert()
+        {
+            _map = (int[,])_startMap.Clone();
+            ShowPlayer();
+            
+            _buttonsData.Revert();
+            _trapData.Revert();
+        }
+
+        private bool AreVictoryConditionsMet()
+        {
+            if (_buttonsData.AreButtonsPressedInOrder() == false)
+                return false;
+            
+            if(_trapData.IsPlayerInTrap)
+                return false;
+                
+            return true;
+        }
+
+        private bool? TryShowFreeSpace()
+        {
+            int step = 1;
+            
+            PositionInMap[] aroundPoints =
+            {
+                new (_playerPosition.X - step, _playerPosition.Y ),
+                new (_playerPosition.X + step, _playerPosition.Y ),
+                new (_playerPosition.X, _playerPosition.Y - step),
+                new (_playerPosition.X, _playerPosition.Y + step),
+            };
+
+            foreach (var point in aroundPoints)
+            {
+                if (_map[point.X, point.Y] <= (int)_mapElements.SpaceToFill)
+                {
+                    return null;
+                }
+            }
+
+            foreach (var mapElement in _map)
+            {
+                if (mapElement <= (int)_mapElements.SpaceToFill)
+                    return false;
+            }
+            
+            return true;
         }
 
         private bool TryChangePosition(int currentX, int currentY, ref int newX, ref int newY)
         {
             if (_map[currentX, currentY] == (int)_mapElements.Wall || _map[currentX, currentY] == (int)_mapElements.TailPlayer)
             {
-                _playerPosition = new MapVector2(newX, newY);
+                _playerPosition = new PositionInMap(newX, newY);
                 _map[newX, newY] = (int)_mapElements.Player;
 
                 return true;
             }
-
+            
+            ActivateFunctionalElements(currentX, currentY);
             _map[currentX, currentY] = (int)_mapElements.TailPlayer;
             newX = currentX;
             newY = currentY;
             
             return false;
         }
-        
-        public int[,] GetMap()
+
+        private void ActivateFunctionalElements(int positionX, int positionY)
         {
-            return _map;
+            PositionInMap currentPosition = new PositionInMap(positionX, positionY);
+            _trapData.TryShowTrap(currentPosition);
+            _buttonsData.TryDownButton(currentPosition);
         }
 
         private void ShowPlayer()
@@ -82,12 +156,48 @@ namespace _Sources.Model
                 {
                     if (_map[i, j] == (int)_mapElements.Player)
                     {
-                        _playerPosition = new MapVector2(i, j);
-                        
+                        _playerPosition = new PositionInMap(i, j);
                         return;
                     }
                 }
             }
+        }
+
+        private void AddButtons()
+        {
+            int signChangeMultiplier = -1;
+            
+            List<ButtonInMap> buttons = new List<ButtonInMap>();
+            
+            for (int i = 0; i < _map.GetLength(0); i++)
+            {
+                for (int j = 0; j <  _map.GetLength(1); j++)
+                {
+                    if (_map[i, j] == (int)_mapElements.OneButton || _map[i, j] == (int)_mapElements.TwoButton
+                                                                  || _map[i, j] == (int)_mapElements.ThreeButton)
+                    {
+                        buttons.Add(new ButtonInMap(new PositionInMap(i, j), _map[i, j] * signChangeMultiplier));
+                    }
+                }
+            }
+            
+            _buttonsData.AddButtons(buttons);
+        }
+
+        private void AddTraps()
+        {
+            List<PositionInMap> traps = new List<PositionInMap>();
+            
+            for (int i = 0; i < _map.GetLength(0); i++)
+            {
+                for (int j = 0; j <  _map.GetLength(1); j++)
+                {
+                    if (_map[i, j] == (int)_mapElements.Trap)
+                        traps.Add(new PositionInMap(i, j));
+                }
+            }
+            
+            _trapData.AddTraps(traps);
         }
     }
 }
