@@ -8,6 +8,9 @@ namespace _Sources.View
 {
     public class MapPainterInUi : MonoBehaviour
     {
+        [SerializeField] private float _step;
+        [SerializeField] private float _step2;
+        
         private MapElementInUi _emptyElementPrefab;
         private List<MapElementInUi> _mapElements;
         private Dictionary<int, Sprite> _mapElementsSprites;
@@ -54,36 +57,39 @@ namespace _Sources.View
             
             float elementScaleX = 0;
             float elementScaleY = 0;
+            float elementScaleZ = 0;
+            float z = 0;
             float linePositionY = _rectTransform.position.y;
 
             var mapTransformPositon = _rectTransform.position;
 
             for (int i = 0; i < map.GetLength(0); i++)
             {
+                linePositionY -= elementScaleY;
+                mapTransformPositon = new Vector3(_rectTransform.position.x + elementScaleZ * i, linePositionY, mapTransformPositon.z);
+                
                 for (int j = 0; j < map.GetLength(1); j++)
                 {
                     if (_mapElementsSprites.ContainsKey(map[i, j]))
                     {
-                        MapElementInUi mapElement = Instantiate(_emptyElementPrefab, mapTransformPositon, Quaternion.identity);
+                        MapElementInUi mapElement = Instantiate(_emptyElementPrefab, mapTransformPositon, _rectTransform.rotation);
                         RectTransform elementRectTransform = mapElement.GetComponent<RectTransform>();
                         mapElement.transform.SetParent(transform);
 
-                        elementScaleX = elementRectTransform.sizeDelta.x;
-                        elementScaleY = elementRectTransform.sizeDelta.y;
+                        elementScaleX = _step;
+                        elementScaleY = _step;
+                        elementScaleZ = _step2;
                         
                         mapElement.Init(new PositionInMap(i, j));
                         _mapElements.Add(mapElement);
 
-                        mapTransformPositon = new Vector2(mapTransformPositon.x + elementScaleX, mapTransformPositon.y);
+                        mapTransformPositon = new Vector3(mapTransformPositon.x + elementScaleX, mapTransformPositon.y + elementScaleZ, mapTransformPositon.z);
                     }
                     else
                     {
                         throw new KeyNotFoundException($"Неизвестный ключ элемента! Элемент {map[i, j]} не найден!");
                     }
                 }
-
-                linePositionY -= elementScaleY;
-                mapTransformPositon = new Vector2(_rectTransform.position.x, linePositionY);
             }
         }
 
