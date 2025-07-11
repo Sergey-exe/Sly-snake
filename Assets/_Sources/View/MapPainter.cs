@@ -32,19 +32,33 @@ namespace _Sources.View
             _isActive = true;
         }
         
-        public void Init(MapElement emptyElementPrefab, PlayerMover playerMover, int playerIndex, Dictionary<int, Sprite> mapElementsSprites)
+        public void Init(PlayerMover playerMover)
         {
-            _emptyElementPrefab = emptyElementPrefab ?? throw new ArgumentNullException(nameof(emptyElementPrefab));
             _playerMover = playerMover ?? throw new ArgumentNullException(nameof(playerMover));
-            _mapElementsSprites = mapElementsSprites ?? throw new ArgumentNullException(nameof(mapElementsSprites));
-        
-            _playerIndex = playerIndex;
         
             _playerMover.InMapElement += ChangeMapElement;
             _playerMover.Finished += MapChanged;
         
             _mapElements = new List<MapElement>();
             _isInit = true;
+        }
+
+        public void SetEmptyElementPrefab(MapElement emptyElementPrefab)
+        {
+            _emptyElementPrefab = emptyElementPrefab ?? throw new ArgumentNullException(nameof(emptyElementPrefab));
+        }
+
+        public void SetPlayerIndex(int playerIndex)
+        {
+            if (playerIndex < 0)
+                throw new ArgumentOutOfRangeException(nameof(playerIndex));
+            
+            _playerIndex = playerIndex;
+        }
+
+        public void SetSprites(Dictionary<int, Sprite> mapElementsSprites)
+        {
+            _mapElementsSprites = mapElementsSprites ?? throw new ArgumentNullException(nameof(mapElementsSprites));
         }
 
         public void ChangeMap(List<PositionInMap> сhangeableElementsPositions, int[,] map)

@@ -12,6 +12,8 @@ public class PlayerMover : MonoBehaviour
     private Transform _playerTransform;
     private Coroutine _moveCoroutine;
     private List<MapElement> _waypoints;
+    private CameraShaker _cameraShaker;
+    private bool _hasPlayer;
     private bool _isInit;
     private bool _isActive;
     
@@ -27,16 +29,27 @@ public class PlayerMover : MonoBehaviour
         _isActive = true;
     }
 
-    public void Init(Transform playerTransform)
+    public void Init(CameraShaker cameraShaker)
+    {
+        _cameraShaker = cameraShaker ?? throw new ArgumentNullException(nameof(cameraShaker));
+       
+        _isInit = true;
+    }
+
+    public void CreatePlayer(Transform playerTransform)
     {
         Player player = Instantiate(_playerPrfab, playerTransform.position, playerTransform.rotation);
         
         _playerTransform = player.transform;
-        _isInit = true;
+        
+        _hasPlayer = true;
     }
 
     public void SetPosition(Transform playerTransform)
     {
+        if (_hasPlayer == false)
+            throw new ArgumentNullException("Player не создан");
+        
         _playerTransform.position = playerTransform.position;
     }
 
@@ -61,24 +74,22 @@ public class PlayerMover : MonoBehaviour
 
     public void StopMove()
     {
+        if (_moveCoroutine == null)
+            return;
+        
         StopCoroutine(_moveCoroutine);
         _moveCoroutine = null;
     }
     
     private IEnumerator Move()
     {
-        float epsilon = 0.001f;
-        bool atOnePoint = false;
+        if (_hasPlayer == false)
+            throw new ArgumentNullException("Player не создан");
         
-        while (atOnePoint == false)
+        float epsilon = 0.01f;
+        
+        while (_waypoints.Count != 0)
         {
-            if (_waypoints == null || _waypoints.Count == 0)
-            {
-                _moveCoroutine = null;
-                atOnePoint = true;
-                break;
-            }
-            
             if (Vector2.Distance(_playerTransform.position, _waypoints[0].transform.position) >= epsilon)
             {
                 _playerTransform.position = Vector2.MoveTowards(_playerTransform.position, _waypoints[0].transform.position, _speed * Time.deltaTime);
@@ -91,7 +102,9 @@ public class PlayerMover : MonoBehaviour
 
             yield return null;
         }
-        
+
+        _cameraShaker.Shake();
+        _moveCoroutine = null;
         Finished?.Invoke();
         yield return null;
     }

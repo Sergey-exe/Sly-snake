@@ -24,8 +24,17 @@ public class EndGameViewer
         if(_isInit == false)
             return;
         
+        Debug.Log(nameof(ShoweFaile));
         _failWindow.SetActive(true);
         _mapPainterInUi.ChangeMap(map);
+    }
+    
+    public void ShoweWin()
+    {
+        if(_isInit == false)
+            return;
+        
+        _winWindow.SetActive(true);
     }
 
     public void HideEndWindows()

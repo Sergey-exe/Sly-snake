@@ -13,6 +13,8 @@ namespace _Sources.Input
         [SerializeField] private KeyCode[] _keysLeft;
 
         private MapPresenter _mapPresenter;
+        private int _step = 1;
+        private bool _isMobile;
         private bool _isInit;
         private bool _isActive;
 
@@ -21,16 +23,14 @@ namespace _Sources.Input
             if(_isActive == false)
                 return;
 
-            int step = 1;
-            
             if(DownButtonUp())
-                _mapPresenter.TryPlayerMove(new PositionInMap(-step, 0));
+                _mapPresenter.TryPlayerMove(new PositionInMap(-_step, 0));
             else if(DownButtonDown())
-                _mapPresenter.TryPlayerMove(new PositionInMap(step, 0));
+                _mapPresenter.TryPlayerMove(new PositionInMap(_step, 0));
             else if(DownButtonRight())
-                _mapPresenter.TryPlayerMove(new PositionInMap(0, step));
+                _mapPresenter.TryPlayerMove(new PositionInMap(0, _step));
             else if(DownButtonLeft())
-                _mapPresenter.TryPlayerMove(new PositionInMap(0, -step));
+                _mapPresenter.TryPlayerMove(new PositionInMap(0, -_step));
         }
 
         public void Activate()
@@ -44,6 +44,7 @@ namespace _Sources.Input
         public void Init(MapPresenter mapPresenter)
         {
             _mapPresenter = mapPresenter ?? throw new System.ArgumentNullException(nameof(mapPresenter));
+            _isMobile = Application.isMobilePlatform;
             
             _isInit = true;
         }
@@ -66,6 +67,11 @@ namespace _Sources.Input
         public bool DownButtonLeft()
         {
             return DownButton(_keysLeft);
+        }
+
+        public void EnterDirection(PositionInMap positionInMap)
+        {
+            _mapPresenter.TryPlayerMove(positionInMap);
         }
 
         private bool DownButton(KeyCode[] keyCodes)

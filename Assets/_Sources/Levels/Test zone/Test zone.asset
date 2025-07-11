@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcfc15bb3ee912242b45152baaefca2a, type: 3}
+  m_Name: Test zone
+  m_EditorClassIdentifier: 
+  <ZoneName>k__BackingField: Test zone
+  <BackgroundsColor>k__BackingField: {r: 0.4745098, g: 0.41960785, b: 0.19215687, a: 0}
+  <ZoneMusic>k__BackingField: {fileID: 0}
+  <EmptyElementPrefab>k__BackingField: {fileID: -3424423684217425707, guid: 2090ce3fb99a1574ea4d200e1a7737ec, type: 3}
+  MapElementsSprites:
+    _serializedList:
+    - Key: -4
+      Value: {fileID: 21300000, guid: fc9f28907e79eae4fb762b497f724a08, type: 3}
+    - Key: -3
+      Value: {fileID: 21300000, guid: 52acd1846e8690746b12f33f0ec6d89c, type: 3}
+    - Key: -2
+      Value: {fileID: 21300000, guid: 7a9bd5486ea2a9f43883fe708a593a3f, type: 3}
+    - Key: -1
+      Value: {fileID: 21300000, guid: bc0644ec4ce64554baf183e3113be8e3, type: 3}
+    - Key: 0
+      Value: {fileID: 21300000, guid: aee326eb49a72194bbe2cd8ca9c01adc, type: 3}
+    - Key: 1
+      Value: {fileID: 21300000, guid: d883969a87312eb4b82a23777fe9e644, type: 3}
+    - Key: 2
+      Value: {fileID: 21300000, guid: eaa052cf04697744eb27f6f937d9a0ee, type: 3}
+    - Key: 3
+      Value: {fileID: 21300000, guid: e3305d99c737f92488d14a835a2d3d81, type: 3}
+  _levels:
+  - {fileID: 11400000, guid: 3ca5deb5f851d0a4eb6688435053060e, type: 2}
+  - {fileID: 11400000, guid: ec2607577a1eee64abe4e994d7a8146e, type: 2}
+  - {fileID: 11400000, guid: 3568b7a95d725494b89656a1a2049d15, type: 2}

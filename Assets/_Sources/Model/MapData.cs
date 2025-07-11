@@ -11,6 +11,13 @@ namespace _Sources.Model
         
         private int[,] _startMap;
         private int[,] _map;
+
+        private bool _hasMap;
+
+        private int[] _ignoreIndexes = 
+        {
+            (int)_mapElements.Trap,
+        };
         
         private enum _mapElements
         {
@@ -24,21 +31,25 @@ namespace _Sources.Model
             TailPlayer = 3,
         };
         
-        public MapData(int[,] map)
+        public MapData()
         {
-            if(map == null)
-                throw new ArgumentNullException(nameof(map));
-            
             _trapData = new TrapData();
             _buttonsData = new ButtonsData();
-            _startMap = (int[,])map.Clone();
-            _map = (int[,])map.Clone();
-            ShowPlayer();
-            AddButtons();
-            AddTraps();
         }
         
         public int GetPlayerIndex => (int)_mapElements.Player;
+
+        public void SetMap(int[,] map)
+        {
+            _startMap = (int[,])map.Clone();
+            _map = (int[,])map.Clone();
+            
+            ShowPlayer();
+            AddButtons();
+            AddTraps();
+            
+            _hasMap = true;
+        }
 
         public List<PositionInMap> TrySetNewPlayerPosition(PositionInMap derection, out bool? hasFreeSpace, out bool areVictoryConditionsMet)
         {
@@ -108,7 +119,7 @@ namespace _Sources.Model
 
             foreach (var point in aroundPoints)
             {
-                if (_map[point.X, point.Y] <= (int)_mapElements.SpaceToFill)
+                if (_map[point.X, point.Y] <= (int)_mapElements.SpaceToFill & TryShowInIgnore(_map[point.X, point.Y]) == false)
                 {
                     return null;
                 }
@@ -116,7 +127,7 @@ namespace _Sources.Model
 
             foreach (var mapElement in _map)
             {
-                if (mapElement <= (int)_mapElements.SpaceToFill)
+                if (mapElement <= (int)_mapElements.SpaceToFill & TryShowInIgnore(mapElement) == false)
                     return false;
             }
             
@@ -198,6 +209,17 @@ namespace _Sources.Model
             }
             
             _trapData.AddTraps(traps);
+        }
+
+        private bool TryShowInIgnore(int currentIndex)
+        {
+            foreach (var index in _ignoreIndexes)
+            {
+                if(index == currentIndex)
+                    return true;
+            }
+            
+            return false;
         }
     }
 }
