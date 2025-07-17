@@ -20,6 +20,7 @@ namespace _Sources.Root
         [SerializeField] private LevelTimeViewer _levelTimeViewer;
         [SerializeField] private BackgroundSetter _backgroundSetter;
         [SerializeField] private CameraShaker _cameraShaker;
+        [SerializeField] private LevelBuilder _levelBuilder;
     
         private void Start()
         {
@@ -36,11 +37,13 @@ namespace _Sources.Root
             _gameModeButtonsListener.Init(mapPresenter);
             _levelTimeCounter.Init(_levelTimeViewer);
             _mapPainter.Init(_playerMover);
+            _levelBuilder.Init(_levelTimeCounter, _mapSettings, _mapPainterInUi, _mapPainter, mapData, mapPresenter, _playerMover);
             
-            _levelTimeViewer.Activate();
+            /*
+             _levelTimeViewer.Activate();
             _levelTimeCounter.Activate();
             _levelTimeViewer.Activate();
-            _mapSettings.SetLevelIndexes(0, 0);
+            _mapSettings.SetLevelIndexes(0, 0); // Здесь должна будет быть загрузка выбранного уровня, сейчас загружается всегда первый
             _mapPainterInUi.SetSprites(_mapSettings.GetMapElementsSprites());
             _mapPainterInUi.Activate();
             _mapPainter.SetEmptyElementPrefab(_mapSettings.EmptyElementPrefab);
@@ -55,6 +58,21 @@ namespace _Sources.Root
             _gameModeButtonsListener.Activate();
             _inputReader.Activate();
             _swipeReader.Activate();
+            */
+            
+            
+            _levelTimeViewer.Activate();
+            _levelTimeCounter.Activate();
+            _mapPainterInUi.Activate();
+            _cameraShaker.Activate();
+            _gameModeButtonsListener.Activate();
+            _inputReader.Activate();
+            _swipeReader.Activate();
+            _levelBuilder.Activate();
+            _playerMover.Activate();
+            _mapPainter.Activate();
+            
+            _levelBuilder.BuildLevel();
         }
     }
 }

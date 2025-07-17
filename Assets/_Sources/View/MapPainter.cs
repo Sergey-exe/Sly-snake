@@ -15,6 +15,7 @@ namespace _Sources.View
         private int _playerIndex;
         private bool _isInit;
         private bool _isActive;
+        private bool _mapCreated;
     
         public bool MapChanging {get; private set;}
     
@@ -115,7 +116,7 @@ namespace _Sources.View
                     
                         mapElement.Init(map[i, j], new PositionInMap(i, j));
                         _mapElements.Add(mapElement);
-                    
+                        
                         TrySetStartPlayerPositon(mapElement.Index, mapElement.transform);
                     
                         mapTransformPositon = new Vector2(mapTransformPositon.x + elementScaleX, mapTransformPositon.y);
@@ -129,6 +130,8 @@ namespace _Sources.View
                 linePositionY -= elementScaleY;
                 mapTransformPositon = new Vector2(transform.position.x, linePositionY);
             }
+            
+            _mapCreated = true;
         }
         
         public void RevertMap(int[,] map)
@@ -190,9 +193,9 @@ namespace _Sources.View
             if (index != _playerIndex)
                 return; 
             
-            _startPlayerTransform = elementTransform;
+            _startPlayerTransform = elementTransform ?? throw new ArgumentNullException(nameof(elementTransform));
             
-            if (_isActive == false)
+            if (_mapCreated == false)
                 return;
             
             _playerMover.SetPosition(_startPlayerTransform);
