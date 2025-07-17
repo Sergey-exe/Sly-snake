@@ -40,7 +40,7 @@ namespace _Sources.Root
             _levelTimeViewer.Activate();
             _levelTimeCounter.Activate();
             _levelTimeViewer.Activate();
-            _mapSettings.SetLevelIndexes(0, 0); // Здесь должна будет быть загрузка выбранного уровня, сейчас загружается всегда первый
+            _mapSettings.SetLevelIndexes(0, 0);
             _mapPainterInUi.SetSprites(_mapSettings.GetMapElementsSprites());
             _mapPainterInUi.Activate();
             _mapPainter.SetEmptyElementPrefab(_mapSettings.EmptyElementPrefab);
